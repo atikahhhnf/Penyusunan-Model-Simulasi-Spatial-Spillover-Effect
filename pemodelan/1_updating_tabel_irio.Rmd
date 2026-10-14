@@ -1,0 +1,164 @@
+---
+title: "Updating Tabel IRIO 2016 ke 2025 dengan Metode RAS"
+author: "Atikah Nurfadia"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 0. Paket dan lokasi berkas
+
+Hanya `readxl` dan `writexl` yang dipakai. RAS ditulis sendiri agar kriteria berhenti.
+
+```{r}
+library(readxl)
+library(writexl)
+
+dir_kerja <- "D:/POLSTAT STIS 64/4SD2/Skripsi/IRIO/Updating IRIO/"
+f_input   <- paste0(dir_kerja, "00. Data_Updating_IRIO_2025_fix.xlsx")
+f_output  <- paste0(dir_kerja, "01_Data_IRIO_17_2025_RAS.xlsx")
+
+TOL      <- 1e-5      # kriteria konvergensi RAS
+MAX_ITER <- 10000
+FAKTOR   <- 1000      # sheet 2025 dalam miliar, tabel 2016 dalam juta rupiah
+
+n_prov <- 34; n_sek <- 17; n <- n_prov * n_sek
+provinsi <- c("Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Jambi", "Sumatera Selatan",
+              "Bengkulu", "Lampung", "Kep. Bangka Belitung", "Kep. Riau", "DKI Jakarta",
+              "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Banten", "Bali",
+              "Nusa Tenggara Barat", "Nusa Tenggara Timur", "Kalimantan Barat", "Kalimantan Tengah",
+              "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara", "Sulawesi Utara",
+              "Sulawesi Tengah", "Sulawesi Selatan", "Sulawesi Tenggara", "Gorontalo",
+              "Sulawesi Barat", "Maluku", "Maluku Utara", "Papua Barat", "Papua")
+kbli  <- c("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M,N", "O", "P", "Q", "R-U")
+label <- paste0(rep(provinsi, each = n_sek), "_", rep(kbli, times = n_prov))
+
+baca_vektor <- function(sheet) as.numeric(as.matrix(read_excel(f_input, sheet = sheet, col_names = FALSE, .name_repair = "minimal")))
+```
+
+## 1. Tabel dasar IRIO 2016
+
+Output 2016 dihitung dari neraca baris ($x = Z\mathbf{1} + f$), lalu impor antara
+diperoleh sebagai residual neraca kolom ($m = x - Z^\top\mathbf{1} - v$).
+
+```{r}
+Z16   <- as.matrix(read_excel(f_input, sheet = "T", col_names = FALSE, .name_repair = "minimal"))
+dimnames(Z16) <- NULL
+NTB16 <- baca_vektor("NTB")
+FD16  <- baca_vektor("Final Demand")
+stopifnot(dim(Z16) == c(n, n), length(NTB16) == n, length(FD16) == n)
+
+X16   <- rowSums(Z16) + FD16
+IMP16 <- X16 - colSums(Z16) - NTB16
+A16   <- sweep(Z16, 2, X16, "/")
+
+cat("Output 2016   : Rp", format(sum(X16) / 1e6, big.mark = ".", decimal.mark = ","), "triliun\n")
+cat("NTB 2016      : Rp", format(sum(NTB16) / 1e6, big.mark = ".", decimal.mark = ","), "triliun\n")
+cat("Impor negatif :", sum(IMP16 < -1e-6), "sel\n")
+cat("rho(A2016)    :", round(max(Mod(eigen(A16, only.values = TRUE)$values)), 4), "\n")
+```
+
+## 2. Target 2025
+
+Total kontrol berasal dari **estimasi** PDRB ADHB 2025 (sheet DATA, kolom `Est PDRB ADHB 2025`),
+bukan PDRB aktual. PDRB aktual hanya dipakai untuk konfirmasi akurasi estimasi.
+`Input Antara 2025` berisi input antara **domestik** saja; impor antara ada di sheet sendiri,
+sehingga total baris dan total kolom hanya berselisih karena komposisi output.
+
+```{r}
+X25 <- baca_vektor("Total Input 2025")       * FAKTOR
+U25 <- baca_vektor("Permintaan Antara 2025") * FAKTOR
+V25 <- baca_vektor("Input Antara 2025")      * FAKTOR
+M25 <- baca_vektor("Impor Antara 2025")      * FAKTOR
+
+stopifnot(length(X25) == n, length(U25) == n, length(V25) == n, length(M25) == n,
+          !anyNA(c(X25, U25, V25, M25)), all(X25 > 0))
+cat("U > X :", sum(U25 > X25), "sel | V + M > X :", sum(V25 + M25 > X25), "sel\n")
+
+# Konsistensi dengan rasio 2016 (target memang dibangun dari rasio ini)
+cat("Maks |U/X - KA16/X16| :", signif(max(abs(U25 / X25 - rowSums(Z16) / X16)), 3), "\n")
+cat("Maks |V/X - IA16/X16| :", signif(max(abs(V25 / X25 - colSums(Z16) / X16)), 3), "\n")
+
+selisih <- (sum(V25) - sum(U25)) / sum(U25) * 100
+cat("Selisih total V - U   :", round(selisih, 3), "%\n")
+
+# Rekonsiliasi: total baris = total kolom.
+# Target baris dipertahankan apa adanya dan target kolom diskalakan ke total baris.
+# Alasannya, FD = X - KA; bila target baris ikut dinaikkan, sel dengan KA/X
+# mendekati 1 (Maluku Utara B, KA/X = 0,997) langsung menghasilkan FD negatif.
+u_tar <- U25
+v_tar <- V25 * sum(U25) / sum(V25)
+```
+
+## 3. RAS
+
+Titik awal $Z^{(0)} = A_{2016}\,\hat{x}_{2025}$. Satu iterasi = penyesuaian baris lalu kolom.
+Berhenti saat $\max_i |\sum_j z_{ij} - u_i| / \bar u <$ `TOL`.
+
+```{r}
+ras <- function(A0, x, u, v, tol = 1e-5, max_iter = 10000) {
+  Z <- sweep(A0, 2, x, "*")
+  for (k in seq_len(max_iter)) {
+    Z <- Z * (u / rowSums(Z))               # r: penyesuaian baris
+    Z <- sweep(Z, 2, v / colSums(Z), "*")   # s: penyesuaian kolom
+    galat <- max(abs(rowSums(Z) - u)) / mean(u)
+    if (galat < tol) break
+  }
+  list(Z = Z, iterasi = k, galat = galat)
+}
+
+hasil <- ras(A16, X25, u_tar, v_tar, tol = TOL, max_iter = MAX_ITER)
+Z25   <- hasil$Z
+A25   <- sweep(Z25, 2, X25, "/")
+cat("RAS konvergen pada iterasi ke-", hasil$iterasi, ", galat relatif ", signif(hasil$galat, 3), "\n", sep = "")
+```
+
+## 4. Susun tabel 2025 dan uji neraca
+
+```{r}
+KA25  <- rowSums(Z25)
+IA25  <- colSums(Z25)
+FD25  <- X25 - KA25
+IMP25 <- M25
+NTB25 <- X25 - IA25 - IMP25
+rho25 <- max(Mod(eigen(A25, only.values = TRUE)$values))
+
+cat("KA + FD = X        : selisih maks", signif(max(abs(KA25 + FD25 - X25)), 3), "\n")
+cat("IA + IMP + NTB = X : selisih maks", signif(max(abs(IA25 + IMP25 + NTB25 - X25)), 3), "\n")
+cat("FD negatif         :", sum(FD25 < 0), "sel\n")
+cat("NTB negatif        :", sum(NTB25 < 0), "sel\n")
+cat("rho(A2025)         :", round(rho25, 4), "\n")
+cat("NTB nasional 2025  : Rp", round(sum(NTB25) / 1e6, 1), "triliun\n")
+stopifnot(all(FD25 >= 0), all(NTB25 >= 0), rho25 < 1)
+```
+
+## 5. Ekspor
+
+Format sama dengan `01__Data_IRIO_17_Siap.xlsx` 
+
+```{r}
+kol <- function(v) as.data.frame(matrix(v, ncol = 1))
+brs <- function(v) as.data.frame(matrix(v, nrow = 1))
+write_xlsx(list(
+  A              = as.data.frame(A25),
+  Z              = as.data.frame(Z25),
+  FD25           = kol(FD25),
+  KA25           = kol(KA25),
+  `Total Output` = kol(X25),
+  NTB25          = brs(NTB25),
+  IA25           = brs(IA25),
+  IMP25          = brs(IMP25)
+), f_output, col_names = FALSE)
+
+write_xlsx(list(
+  Ringkasan = data.frame(
+    Ukuran = c("Toleransi", "Iterasi", "Galat akhir", "Selisih V-U awal (%)", "rho A2016", "rho A2025",
+               "Rata-rata |dA|", "Korelasi A", "NTB nasional (Rp T)"),
+    Nilai  = c(TOL, hasil$iterasi, hasil$galat, selisih, max(Mod(eigen(A16, only.values = TRUE)$values)),
+               rho25, mean(abs(A25 - A16)), cor(c(A16), c(A25)), sum(NTB25) / 1e6)),
+  Label          = data.frame(No = 1:n, Label = label, X2025_juta = X25, FD2025_juta = FD25, NTB2025_juta = NTB25)
+), paste0(dir_kerja, "Ringkasan_Updating_IRIO_2025.xlsx"))
+cat("Tersimpan:", f_output, "\n")
+```

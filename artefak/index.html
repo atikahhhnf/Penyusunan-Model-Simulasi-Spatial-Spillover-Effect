@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="id" data-tema="terang">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ketika Bali Terhenti</title>
+  <meta name="description" content="Web story skripsi: dampak ekonomi guncangan pariwisata Bali ke 34 provinsi dengan model Interregional Input-Output dan geospatial big data.">
+  <link rel="stylesheet" href="lib/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <!-- Tema dipasang sebelum halaman digambar supaya tidak berkedip putih sesaat -->
+  <script>
+    try {
+      var t = localStorage.getItem('tema');
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'gelap' : 'terang';
+      document.documentElement.dataset.tema = t;
+    } catch (e) {}
+  </script>
+</head>
+<body>
+
+  <a class="lewati" href="#isi">Lewati ke isi</a>
+
+  <!-- ============ SISI KIRI: identitas, menu, kontak ============ -->
+  <aside class="sisi" id="sisi">
+    <a class="merek" href="#beranda">
+      <span class="merek-judul">Ketika Bali Terhenti</span>
+      <span class="merek-sub">Politeknik Statistika STIS</span>
+    </a>
+
+    <nav class="menu" aria-label="Menu utama">
+      <p class="grup">Mulai</p>
+      <ul>
+        <li><a href="#beranda">Beranda</a></li>
+          <li class="grup">Temuan</li>
+          <li><a href="#ringkasan">Ringkasan</a></li>
+          <li><a href="#satelit">Data satelit</a></li>
+          <li><a href="#shock">Konstruksi shock</a></li>
+          <li><a href="#irio">Simulasi IRIO</a></li>
+          <li><a href="#peta">Peta dampak</a></li>
+          <li><a href="#klaster">Klaster spasial</a></li>
+          <li><a href="#kebijakan">Rekomendasi</a></li>
+          <li class="grup">Jelajahi</li>
+          <li><a href="#simulator">Simulator</a></li>
+          <li><a href="#data">Tabel data</a></li>
+          <li class="grup">Tentang</li>
+          <li><a href="#tanya">Tanya jawab</a></li>
+          <li><a href="#tentang">Tentang</a></li>
+      </ul>
+    </nav>
+
+    <!-- ISI SENDIRI: ganti data penulis dan alamat email di bawah ini. -->
+    <div class="kartu-penulis">
+      <p class="nama">Atikah Nurfadia</p>
+      <p class="rinci">NIM 222212522<br>
+         Komputasi Statistik<br>
+         Politeknik Statistika STIS</p>
+      <a class="surel" href="mailto:222212522@stis.ac.id?subject=Pertanyaan%20tentang%20Ketika%20Bali%20Terhenti">Hubungi saya</a>
+    </div>
+  </aside>
+
+  <div class="wadah">
+    <header class="bilah">
+      <button class="tombol-menu" id="tombol-menu" aria-expanded="false" aria-controls="sisi">
+        <span aria-hidden="true">&#9776;</span> Menu
+      </button>
+      <p class="judul-bilah" id="judul-bilah"></p>
+      <button class="tombol-tema" id="tombol-tema" aria-pressed="false">
+        <span class="ikon-tema" aria-hidden="true"></span>
+        <span id="label-tema">Gelap</span>
+      </button>
+    </header>
+
+    <main id="isi">
+      <!-- ===================== BERANDA ===================== -->
+      <article class="halaman" id="h-beranda">
+        <div class="pembuka">
+          <p class="sapaan">Web story skripsi</p>
+          <h1>Pariwisata Bali berhenti, 33 provinsi lain ikut kehilangan Rp30 triliun</h1>
+          <p class="subjudul">Guncangan yang terlihat hanya menimpa satu pulau ternyata merambat ke
+             seluruh Indonesia lewat rantai pasok antarprovinsi.</p>
+
+          <dl class="angka-utama">
+            <div><dt>nilai produksi nasional yang hilang</dt><dd id="h-total"></dd></div>
+            <div><dt>kali lipat dari guncangan awalnya</dt><dd id="h-mult"></dd></div>
+            <div><dt>provinsi di luar Bali ikut merugi</dt><dd id="h-prov"></dd></div>
+          </dl>
+
+          <div class="aksi-pembuka">
+            <a class="tombol-utama" href="#ringkasan">Lihat temuannya</a>
+            <a class="tombol-kedua" href="#simulator">Coba skenario lain</a>
+          </div>
+        </div>
+
+        <svg class="gerbang" viewBox="-600 0 2400 440" preserveAspectRatio="xMidYMax slice" role="img"
+             aria-label="Ilustrasi candi bentar Bali dengan matahari terbenam di laut">
+          <defs>
+            <clipPath id="di-atas-laut"><rect x="-600" y="0" width="2400" height="330"/></clipPath>
+            <radialGradient id="cahaya">
+              <stop offset="0%" stop-color="#FFEAF0"/>
+              <stop offset="65%" stop-color="#F8C0CE"/>
+              <stop offset="100%" stop-color="#F3A9BC"/>
+            </radialGradient>
+            <linearGradient id="warna-laut" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#BFE0DD"/>
+              <stop offset="100%" stop-color="#E2F1EF"/>
+            </linearGradient>
+            <path id="separuh-gerbang" d="M230,392 L230,360 L250,360 L250,262 L232,262 L232,246 L222,232
+              L244,246 L272,246 L272,196 L258,196 L258,184 L250,172 L268,184 L300,184 L300,146 L288,146
+              L288,136 L282,126 L296,136 L330,136 L330,104 L320,104 L320,96 L315,88 L327,96 L360,96
+              L360,70 L352,70 L352,64 L388,64 L410,48 L470,40 L520,22 L520,392 Z"/>
+          </defs>
+
+          <!-- matahari, hanya bagian di atas garis laut yang terlihat -->
+          <g clip-path="url(#di-atas-laut)">
+            <circle class="matahari" cx="600" cy="330" r="118" fill="url(#cahaya)"/>
+          </g>
+
+          <!-- pulau di kejauhan -->
+          <path class="g-pulau" d="M40,330 C90,312 150,306 210,316 C240,320 262,326 280,330 Z"/>
+          <path class="g-pulau" d="M905,330 C935,321 985,319 1012,326 L1024,330 Z"/>
+          <path class="g-pulau" d="M-420,330 C-380,322 -330,320 -300,326 L-290,330 Z"/>
+          <path class="g-pulau" d="M1330,330 C1380,316 1450,314 1500,322 C1520,325 1535,328 1545,330 Z"/>
+
+          <!-- laut dan pantulan cahaya -->
+          <rect x="-600" y="330" width="2400" height="62" fill="url(#warna-laut)"/>
+          <g class="g-pantulan">
+            <rect x="490" y="339" width="220" height="4" rx="2"/>
+            <rect x="515" y="351" width="170" height="4" rx="2"/>
+            <rect x="540" y="363" width="120" height="4" rx="2"/>
+            <rect x="565" y="375" width="70" height="4" rx="2"/>
+          </g>
+
+          <!-- candi bentar: separuh kiri, lalu separuh kanan sebagai cerminannya -->
+          <use class="g-gerbang" href="#separuh-gerbang"/>
+          <use class="g-gerbang" href="#separuh-gerbang" transform="translate(1200 0) scale(-1 1)"/>
+          <g class="g-ukiran">
+            <path d="M250,300 H520 M250,330 H520 M272,221 H520 M300,165 H520 M330,120 H520"/>
+            <path d="M680,300 H950 M680,330 H950 M680,221 H928 M680,165 H900 M680,120 H870"/>
+          </g>
+
+          <!-- tangga di celah gerbang dan tanah -->
+          <g class="g-tangga">
+            <rect x="560" y="356" width="80" height="12"/>
+            <rect x="545" y="368" width="110" height="12"/>
+            <rect x="530" y="380" width="140" height="12"/>
+          </g>
+          <rect class="g-tanah" x="-600" y="392" width="2400" height="48"/>
+        </svg>
+
+        <p>Ketika pariwisata Bali lumpuh pada 2020, yang terlihat di berita adalah hotel yang tutup
+   dan bandara yang sepi. Yang tidak terlihat adalah petani di Jawa Timur yang kehilangan
+   pembeli, pabrik di Jawa Tengah yang pesanannya batal, dan pemasok bahan bangunan di
+   Sumatera Selatan yang proyeknya berhenti.</p>
+        <p>Penelitian ini menghitung yang tidak terlihat itu. Hasilnya: guncangan sebesar
+   <strong id="b-shock"></strong> pada permintaan sektor pariwisata Bali menghapus
+   <strong id="b-total"></strong> nilai produksi nasional. Sebesar <strong id="b-spill"></strong>
+   di antaranya jatuh di luar Bali, tersebar ke 33 provinsi lain.</p>
+        <p>Angka itu penting karena bantuan pemulihan biasanya diarahkan ke daerah yang terdampak
+   langsung. Penelitian ini menunjukkan bahwa sebagian kerugiannya justru ditanggung daerah
+   yang namanya tidak pernah disebut.</p>
+
+        <div class="dua-kolom">
+  <div>
+    <h2>Pariwisata bukan satu sektor</h2>
+    <p>Dalam tabel input–output tidak ada baris bernama pariwisata. Belanja wisatawan tersebar
+       ke banyak lapangan usaha: tiket pesawat masuk ke transportasi, kamar hotel ke akomodasi,
+       oleh-oleh ke perdagangan, dan tiket pertunjukan ke jasa hiburan.</p>
+    <p>Karena itu penelitian ini memetakan aktivitas pariwisata ke sembilan kategori
+       Klasifikasi Baku Lapangan Usaha Indonesia (KBLI), lalu memasangkannya dengan sepuluh
+       dari 17 sektor tabel IRIO. Setiap kategori diukur dengan beberapa indikator, total
+       <strong id="jumlah-indikator-total"></strong> indikator.</p>
+    <p class="di-luar-lingkup">Tujuh sektor lain, yaitu pertanian, pertambangan, industri
+       pengolahan, listrik dan gas, air dan limbah, konstruksi, serta administrasi pemerintahan,
+       tidak menerima shock langsung. Sektor-sektor ini tetap bisa turun karena memasok input
+       ke sektor pariwisata.</p>
+  </div>
+
+  <!-- Daftar kategori KBLI. Angka jumlah indikator diisi otomatis oleh js/beranda.js -->
+  <ul class="daftar-kbli">
+    <li>
+      <span class="kode-kbli">G</span>
+      <div>
+        <h3>Perdagangan besar dan eceran; reparasi mobil dan sepeda motor</h3>
+        <p>Perdagangan kendaraan dan reparasinya, perdagangan besar, serta eceran.</p>
+        <p class="meta-kbli">Sektor IRIO S7, diukur dengan <span data-jumlah-indikator="G"></span> indikator</p>
+      </div>
+    </li>
+    <li>
+      <span class="kode-kbli">H</span>
+      <div>
+        <h3>Transportasi dan pergudangan</h3>
+        <p>Angkutan rel, darat, laut dan penyeberangan, udara, serta pergudangan, jasa penunjang angkutan, pos, dan kurir.</p>
+        <p class="meta-kbli">Sektor IRIO S8, diukur dengan <span data-jumlah-indikator="H"></span> indikator</p>
+      </div>
+    </li>
+    <li>
+      <span class="kode-kbli">I</span>
+      <div>
+        <h3>Penyediaan akomodasi dan makan minum</h3>
+        <p>Hotel dan penginapan, serta usaha penyediaan makanan dan minuman.</p>
+        <p class="meta-kbli">Sektor IRIO S9, diukur dengan <span data-jumlah-indikator="I"></span> indikator</p>
+      </div>
+    </li>
+    <li>
+      <span class="kode-kbli">J, K</span>
+      <div>
+        <h3>Informasi dan komunikasi; jasa keuangan dan asuransi</h3>
+        <p>Layanan komunikasi dan transaksi keuangan yang ikut digerakkan kunjungan wisatawan.</p>
+        <p class="meta-kbli">Sektor IRIO S10 dan S11, diukur dengan <span data-jumlah-indikator="JK"></span> indikator</p>
+      </div>
+    </li>
+    <li>
+      <span class="kode-kbli">L</span>
+      <div>
+        <h3>Real estat</h3>
+        <p>Sewa dan pengelolaan properti, termasuk properti di kawasan wisata.</p>
+        <p class="meta-kbli">Sektor IRIO S12, diukur dengan <span data-jumlah-indikator="L"></span> indikator</p>
+      </div>
+    </li>
+    <li>
+      <span class="kode-kbli">M, N</span>
+      <div>
+        <h3>Jasa perusahaan</h3>
+        <p>Agen perjalanan, penyelenggara acara (event organizer), dan konsultansi.</p>
+        <p class="meta-kbli">Sektor IRIO S13, diukur dengan <span data-jumlah-indikator="MN"></span> indikator</p>
+      </div>
+    </li>
+    <li>
+      <span class="kode-kbli">P</span>
+      <div>
+        <h3>Jasa pendidikan</h3>
+        <p>Kegiatan pendidikan dan pelatihan.</p>
+        <p class="meta-kbli">Sektor IRIO S15, diukur dengan <span data-jumlah-indikator="P"></span> indikator</p>
+      </div>
+    </li>
+    <li>
+      <span class="kode-kbli">Q</span>
+      <div>
+        <h3>Jasa kesehatan dan kegiatan sosial</h3>
+        <p>Layanan kesehatan dan kegiatan sosial.</p>
+        <p class="meta-kbli">Sektor IRIO S16, diukur dengan <span data-jumlah-indikator="Q"></span> indikator</p>
+      </div>
+    </li>
+    <li>
+      <span class="kode-kbli">R, S, T, U</span>
+      <div>
+        <h3>Jasa lainnya</h3>
+        <p>Seni, hiburan, rekreasi, dan jasa perorangan.</p>
+        <p class="meta-kbli">Sektor IRIO S17, diukur dengan <span data-jumlah-indikator="RSTU"></span> indikator</p>
+      </div>
+    </li>
+  </ul>
+        </div>
+
+        <p>Setiap pertanyaan punya bagiannya sendiri, lengkap dengan data dan caranya dihitung.</p>
+        <ol class="alur">
+  <li>
+    <span class="nomor-tujuan">1</span>
+    <h3>Seberapa besar Bali benar-benar berhenti?</h3>
+    <p>Bali diukur dari luar angkasa. Cahaya kota yang meredup, jalan yang sepi, dan udara
+       yang membersih dibandingkan antara sebelum dan sesudah pembatasan, lalu diterjemahkan
+       menjadi angka rupiah.</p>
+    <a href="#dashboard/remote-sensing">Lihat buktinya dari satelit</a>
+  </li>
+  <li>
+    <span class="nomor-tujuan">2</span>
+    <h3>Ke mana kerugiannya pergi?</h3>
+    <p>Guncangan itu dijalankan pada peta hubungan dagang antarprovinsi, sehingga terlihat
+       provinsi dan sektor mana saja yang ikut kehilangan, meski letaknya jauh dari Bali.</p>
+    <a href="#dashboard/irio">Lihat rambatannya</a>
+  </li>
+  <li>
+    <span class="nomor-tujuan">3</span>
+    <h3>Apakah kedekatan geografis menentukan?</h3>
+    <p>Hasilnya diuji secara spasial dan ditumpangkan dengan jaringan pemasok Bali. Ternyata
+       yang menentukan bukan jarak, melainkan seberapa dalam suatu provinsi terhubung dalam
+       rantai produksi.</p>
+    <a href="#dashboard/klaster">Lihat polanya</a>
+  </li>
+        </ol>
+      </article>
+
+      <!-- ===================== RINGKASAN ===================== -->
+      <article class="halaman" id="h-ringkasan" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Ringkasan</p>
+          <h1>Kerugian sebenarnya 1,69 kali lipat guncangan awalnya</h1>
+        </header>
+    <p>Permintaan terhadap sektor pariwisata Bali turun Rp84,39 triliun. Tetapi karena setiap
+       sektor membeli input dari sektor lain, nilai produksi yang akhirnya hilang jauh lebih besar.</p>
+
+    <div class="persamaan">
+      <div class="suku"><span class="nilai" id="r-shock"></span><span class="ket">shock permintaan akhir</span></div>
+      <span class="operator" aria-hidden="true">×</span>
+      <div class="suku"><span class="nilai" id="r-mult"></span><span class="ket">multiplier efektif</span></div>
+      <span class="operator" aria-hidden="true">=</span>
+      <div class="suku hasil"><span class="nilai" id="r-total"></span><span class="ket">penurunan output nasional</span></div>
+    </div>
+
+    <div class="bilah-porsi" id="r-bilah" role="img">
+      <div class="porsi-bali" id="r-porsi-bali"></div>
+      <div class="porsi-luar" id="r-porsi-luar"></div>
+    </div>
+    <div class="label-porsi">
+      <span><i class="titik" style="background: var(--plum)"></i><span id="r-teks-bali"></span></span>
+      <span><i class="titik" style="background: var(--jambu)"></i><span id="r-teks-luar"></span></span>
+    </div>
+
+    <dl class="fakta">
+      <div><dt>Penerima spillover terbesar</dt><dd id="r-terbesar"></dd></div>
+      <div><dt>Intensitas dampak tertinggi</dt><dd id="r-intensitas"></dd></div>
+      <div><dt>Klaster High-High</dt><dd id="r-hh"></dd></div>
+      <div><dt>Klaster Low-High</dt><dd id="r-lh"></dd></div>
+      <div><dt>Dampak terhadap PDRB nasional</dt><dd id="r-pdrb"></dd></div>
+      <div><dt>Lima penerima teratas menyerap</dt><dd id="r-lima"></dd></div>
+    </dl>
+    <p class="catatan">T = triliun rupiah. Semua angka dihitung dari berkas hasil simulasi yang sama dengan naskah.</p>
+      </article>
+
+      <!-- ===================== DATA SATELIT ===================== -->
+      <article class="halaman" id="h-satelit" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Data satelit</p>
+          <h1>Satelit merekam Bali yang meredup</h1>
+        </header>
+    <p>Penurunan aktivitas pariwisata Bali diukur dengan membandingkan dua periode:
+       <strong id="rs-baseline"></strong> sebagai kondisi awal dan <strong id="rs-shock"></strong>
+       sebagai masa guncangan. Citra satelit diolah di Google Earth Engine menjadi komposit per
+       periode, lalu dilengkapi data mobilitas Google dan statistik resmi.</p>
+
+    <div class="wadah-tabel pendek"><table id="tabel-sensor"></table></div>
+
+    <h3 style="margin-top: 2rem">Perubahan setiap indikator</h3>
+    <p>Batang ke kiri berarti aktivitas turun. Pilih jenis data, lalu klik sebuah batang untuk melihat nilai aslinya.</p>
+
+    <div class="pilihan" id="rs-pilihan" role="group" aria-label="Jenis data">
+      <button type="button" data-nilai="semua" aria-pressed="true">Semua</button>
+      <button type="button" data-nilai="Remote sensing" aria-pressed="false"><i class="titik" style="background: var(--plum)"></i>Remote sensing</button>
+      <button type="button" data-nilai="Mobilitas Google" aria-pressed="false"><i class="titik" style="background: var(--jambu)"></i>Mobilitas Google</button>
+      <button type="button" data-nilai="Statistik resmi" aria-pressed="false"><i class="titik" style="background: var(--laguna)"></i>Statistik resmi</button>
+    </div>
+
+    <div class="panel">
+      <div class="kotak-grafik" id="kotak-rs">
+        <canvas id="grafik-rs" role="img" aria-label="Grafik batang perubahan setiap indikator"></canvas>
+      </div>
+    </div>
+    <div class="detail" id="detail-rs" aria-live="polite"></div>
+    <p class="catatan" style="margin-top: 1rem">Batang berwarna pucat naik selama masa guncangan,
+       sehingga tidak dihitung sebagai shock (nilainya dipotong menjadi nol).</p>
+      </article>
+
+      <!-- ===================== KONSTRUKSI SHOCK ===================== -->
+      <article class="halaman" id="h-shock" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Konstruksi shock</p>
+          <h1>Dari citra satelit menjadi angka rupiah</h1>
+        </header>
+    <p>Perubahan setiap indikator dinormalisasi min–max di dalam kelompok aktivitasnya, dirata-ratakan
+       per kategori KBLI menjadi koefisien δ<sub>i</sub>, lalu dikalikan dengan permintaan akhir
+       sektor tersebut pada tabel IRIO 2025.</p>
+    <p class="rumus">ΔFD<sub>j</sub> = δ<sub>i</sub> × FD<sub>j</sub></p>
+    <p id="shock-ringkas"></p>
+
+    <div class="panel">
+      <div class="kotak-grafik tinggi">
+        <canvas id="grafik-shock" role="img" aria-label="Grafik permintaan akhir awal dan shock per sektor"></canvas>
+      </div>
+    </div>
+    <div class="legenda">
+      <span><i style="background: var(--skala-2)"></i>Permintaan akhir awal</span>
+      <span><i style="background: var(--jambu)"></i>Shock (bagian yang hilang)</span>
+    </div>
+    <div class="detail" id="detail-shock" aria-live="polite"></div>
+      </article>
+
+      <!-- ===================== SIMULASI IRIO ===================== -->
+      <article class="halaman" id="h-irio" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Simulasi IRIO</p>
+          <h1>Yang paling terpukul justru bukan sektor pariwisata</h1>
+        </header>
+    <p>Shock disuntikkan ke tabel IRIO 34 provinsi × 17 sektor, atau 578 sektor-wilayah. Perubahan
+       output seluruh sistem dihitung sekaligus dengan invers Leontief.</p>
+    <p class="rumus">Δx = (I − A)<sup>−1</sup> Δf = L Δf</p>
+
+    <div class="pilihan" id="irio-pilihan" role="group" aria-label="Tampilan grafik">
+      <button type="button" data-nilai="dekomposisi" aria-pressed="true">Dekomposisi dampak</button>
+      <button type="button" data-nilai="sektor-bali" aria-pressed="false">Sektor di Bali</button>
+      <button type="button" data-nilai="spillover" aria-pressed="false">Spillover per sektor</button>
+    </div>
+    <p class="keterangan-tampilan" id="irio-keterangan"></p>
+
+    <div class="panel">
+      <div class="kotak-grafik" id="kotak-irio">
+        <canvas id="grafik-irio" role="img" aria-label="Grafik hasil simulasi IRIO"></canvas>
+      </div>
+    </div>
+    <div class="legenda" id="legenda-irio"></div>
+    <div class="detail" id="detail-irio" aria-live="polite"></div>
+      </article>
+
+      <!-- ===================== PETA DAMPAK ===================== -->
+      <article class="halaman" id="h-peta" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Peta dampak</p>
+          <h1>Jawa Timur menanggung paling banyak, Sumatera Selatan paling dalam</h1>
+        </header>
+    <p>Besar dampak menunjukkan provinsi yang kehilangan output paling banyak dalam rupiah. Intensitas
+       membandingkan kehilangan itu dengan ukuran ekonomi provinsinya sendiri.</p>
+
+    <div class="pilihan" id="peta-pilihan" role="group" aria-label="Ukuran pada peta">
+      <button type="button" data-nilai="dampak" aria-pressed="true">Besar dampak (Δx)</button>
+      <button type="button" data-nilai="intensitas" aria-pressed="false">Intensitas (% output)</button>
+    </div>
+
+    <div class="tata-peta">
+      <div>
+        <div id="kanvas-peta-dampak" class="peta"></div>
+        <div id="legenda-dampak" class="legenda"></div>
+      </div>
+      <div class="peringkat">
+        <h3 id="judul-peringkat"></h3>
+        <ol id="daftar-peringkat"></ol>
+      </div>
+    </div>
+    <div class="detail" id="detail-dampak" aria-live="polite"></div>
+      </article>
+
+      <!-- ===================== KLASTER SPASIAL ===================== -->
+      <article class="halaman" id="h-klaster" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Klaster spasial</p>
+          <h1>Yang menentukan bukan jarak, melainkan rantai pasok</h1>
+        </header>
+    <p>Kedekatan antarprovinsi diukur dengan konektivitas penerbangan, bukan jarak garis lurus,
+       karena wisatawan dan pelaku usaha bergerak lewat jaringan udara. Uji dilakukan pada
+       intensitas dampak untuk 33 provinsi di luar Bali.</p>
+
+    <dl class="fakta tiga">
+      <div><dt>Moran's I global</dt><dd id="k-moran"></dd></div>
+      <div><dt>Klaster LISA signifikan</dt><dd id="k-lisa"></dd></div>
+      <div><dt>Korelasi struktural dan geografis</dt><dd id="k-rho"></dd></div>
+    </dl>
+
+    <label class="saklar">
+      <input type="checkbox" id="tampil-jaringan" checked>
+      Tampilkan jaringan spillover dari Bali (sepuluh penerima terbesar)
+    </label>
+    <div id="kanvas-peta-lisa" class="peta"></div>
+    <div id="legenda-lisa" class="legenda"></div>
+    <div class="detail" id="detail-lisa" aria-live="polite"></div>
+
+    <h3 style="margin-top: 2.25rem">Exposure struktural dan kuadran LISA</h3>
+    <p>Exposure struktural tinggi berarti koefisien keterkaitan provinsi itu dengan Bali berada
+       di atas median. Tabel silang ini adalah bentuk network overlay: setiap provinsi diposisikan
+       sekaligus pada jaringan ekonomi dan jaringan geografis.</p>
+    <div class="wadah-tabel pendek"><table id="tabel-overlay"></table></div>
+    <p id="k-temuan" style="margin-top: 1rem"></p>
+      </article>
+
+      <!-- ===================== REKOMENDASI ===================== -->
+      <article class="halaman" id="h-kebijakan" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Rekomendasi</p>
+          <h1>Empat hal yang bisa dilakukan</h1>
+        </header>
+    <p>Setiap butir di bawah ini diturunkan langsung dari angka pada bagian sebelumnya.</p>
+
+    <ol class="daftar-saran">
+      <li>
+        <h3>Hitung bantuan pemulihan melampaui batas provinsi</h3>
+        <p>Seperlima kerugian, yaitu Rp30,22 triliun, jatuh di luar Bali. Skema bantuan yang
+           berhenti di batas provinsi terdampak akan melewatkan bagian ini sepenuhnya.</p>
+      </li>
+      <li>
+        <h3>Jadikan sektor pemasok sebagai sasaran, bukan hanya sektor wisata</h3>
+        <p>Hampir separuh rambatan ke luar Bali, yaitu 48,83 persen, ditanggung industri
+           pengolahan yang tidak pernah menerima guncangan langsung. Bantuan yang hanya
+           menyasar hotel dan restoran tidak menyentuh pihak ini.</p>
+      </li>
+      <li>
+        <h3>Urutkan prioritas dengan intensitas, bukan nominal</h3>
+        <p>Jawa Timur kehilangan paling banyak dalam rupiah, tetapi Sumatera Selatan paling
+           dalam dibanding ukuran ekonominya sendiri, yaitu 0,278 persen. Daerah kecil dengan
+           keterkaitan erat justru paling rentan meski nominalnya tidak mencolok.</p>
+      </li>
+      <li>
+        <h3>Di Bali sendiri, jangan berhenti di sektor pariwisata</h3>
+        <p>Tujuh sektor di Bali yang tidak menerima guncangan langsung tetap kehilangan
+           Rp9,06 triliun, termasuk pertanian dan industri pengolahan, karena memasok input
+           ke sektor wisata.</p>
+      </li>
+    </ol>
+    <p class="catatan">Saran ini bersifat teknis dan terbatas pada apa yang dapat disimpulkan
+       dari model. Model bersifat statis, sehingga tidak memperhitungkan penyesuaian harga,
+       lama waktu pemulihan, maupun respons kebijakan yang berjalan bersamaan.</p>
+      </article>
+
+      <!-- ===================== SIMULATOR ===================== -->
+      <article class="halaman" id="h-simulator" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Simulator</p>
+          <h1>Bagaimana kalau guncangannya berbeda?</h1>
+        </header>
+    <p>Skripsi ini memakai pandemi 2020 sebagai contoh, ketika permintaan pariwisata Bali turun
+       35,05 persen. Tetapi guncangan bisa lebih ringan atau lebih berat: erupsi gunung,
+       krisis penerbangan, atau musim sepi yang panjang. Geser penggaris di bawah untuk melihat
+       dampaknya pada skala lain.</p>
+
+    <div class="panel panel-simulator">
+      <label class="label-penggeser" for="penggeser">
+        Penurunan permintaan sektor pariwisata Bali
+        <output id="nilai-penggeser"></output>
+      </label>
+      <input type="range" id="penggeser" min="0" max="70" step="0.05" value="35.05">
+      <div class="tanda-penggeser" aria-hidden="true">
+        <span>0%</span><span>Pandemi 2020</span><span>70%</span>
+      </div>
+      <div class="pilihan" id="sim-cepat" role="group" aria-label="Skenario siap pakai">
+        <button type="button" data-nilai="10" aria-pressed="false">Ringan</button>
+        <button type="button" data-nilai="20" aria-pressed="false">Sedang</button>
+        <button type="button" data-nilai="35.05" aria-pressed="true">Pandemi 2020</button>
+        <button type="button" data-nilai="50" aria-pressed="false">Berat</button>
+      </div>
+    </div>
+
+    <dl class="fakta tiga hasil-simulasi">
+      <div><dt>Nilai produksi nasional yang hilang</dt><dd id="sim-total"></dd></div>
+      <div><dt>Tertahan di Bali</dt><dd id="sim-bali"></dd></div>
+      <div><dt>Merambat ke 33 provinsi lain</dt><dd id="sim-luar"></dd></div>
+    </dl>
+
+    <div class="panel">
+      <div class="kotak-grafik" id="kotak-sim">
+        <canvas id="grafik-sim" role="img" aria-label="Grafik penurunan output sepuluh provinsi terbesar menurut skenario"></canvas>
+      </div>
+    </div>
+    <div class="legenda">
+      <span><i style="background: var(--jambu)"></i>Skenario pilihan</span>
+      <span><i style="background: var(--plum); width: 3px"></i>Garis penanda hasil skripsi (pandemi 2020)</span>
+    </div>
+    <div class="detail" id="detail-sim" aria-live="polite"></div>
+    <p class="catatan" style="margin-top: 1rem">Model input&ndash;output bersifat linear, sehingga
+       hasil pada skenario lain dihitung tepat, bukan diperkirakan. Yang diasumsikan tetap adalah
+       struktur perekonomian: harga, teknologi produksi, dan pola belanja antarwilayah dianggap
+       tidak berubah. Karena itu angka pada skenario yang sangat jauh dari 35 persen perlu dibaca
+       sebagai gambaran besaran, bukan ramalan.</p>
+      </article>
+
+      <!-- ===================== UNDUH DATA ===================== -->
+      <article class="halaman" id="h-data" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Tabel data</p>
+          <h1>Data lengkap</h1>
+        </header>
+    <p>Klik judul kolom untuk mengurutkan. Kolom pencarian menyaring baris sesuai kata yang diketik.</p>
+
+    <div class="pilihan" id="tabel-pilihan" role="group" aria-label="Pilih tabel">
+      <button type="button" data-nilai="provinsi" aria-pressed="true">Dampak per provinsi</button>
+      <button type="button" data-nilai="indikator" aria-pressed="false">Indikator proksi</button>
+      <button type="button" data-nilai="shock" aria-pressed="false">Shock per sektor</button>
+    </div>
+
+    <label class="cari">
+      <span>Cari</span>
+      <input type="search" id="tabel-cari" placeholder="Nama provinsi, sektor, atau indikator">
+    </label>
+    <div class="wadah-tabel"><table id="tabel-data"></table></div>
+    <p class="catatan" id="tabel-info" style="margin-top: 0.75rem"></p>
+      </article>
+
+      <!-- ===================== TANYA JAWAB ===================== -->
+      <article class="halaman" id="h-tanya" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Tanya jawab</p>
+          <h1>Pertanyaan yang sering muncul</h1>
+        </header>
+
+    <div class="tanya-jawab">
+      <details>
+        <summary>Apakah ini berarti Bali rugi Rp142 triliun?</summary>
+        <p>Bukan. Angka Rp142,65 triliun adalah kehilangan nilai produksi seluruh Indonesia.
+           Bali menanggung Rp112,43 triliun, sedangkan sisanya Rp30,22 triliun tersebar di 33
+           provinsi lain.</p>
+      </details>
+      <details>
+        <summary>Apa bedanya nilai produksi dengan PDRB?</summary>
+        <p>Nilai produksi menghitung seluruh perputaran, termasuk bahan baku yang dibeli dari
+           pihak lain, sehingga satu barang bisa terhitung beberapa kali di sepanjang rantainya.
+           PDRB hanya menghitung nilai tambah pada setiap tahap. Karena itu dampaknya terhadap
+           PDRB lebih kecil, yaitu Rp81,10 triliun.</p>
+      </details>
+      <details>
+        <summary>Mengapa memakai data 2020, bukan data terbaru?</summary>
+        <p>Pandemi 2020 dipilih justru karena merupakan guncangan pariwisata terbesar yang
+           pernah terekam dan datanya lengkap, sehingga cocok sebagai bahan uji model.
+           Modelnya sendiri memakai struktur ekonomi 2025 dan dapat dipakai untuk guncangan
+           lain, seperti pada simulator di atas.</p>
+      </details>
+      <details>
+        <summary>Mengapa kerugian terbesar bukan di provinsi tetangga Bali?</summary>
+        <p>Karena yang menentukan bukan jarak, melainkan hubungan dagang. Jawa Timur dan DKI
+           Jakarta adalah pemasok input terbesar bagi Bali, sehingga paling terdampak ketika
+           Bali berhenti membeli. Nusa Tenggara Barat yang bersebelahan dengan Bali justru
+           kehilangan jauh lebih sedikit.</p>
+      </details>
+      <details>
+        <summary>Seberapa akurat angkanya?</summary>
+        <p>Angka ini adalah hasil model, bukan pencatatan kejadian nyata. Modelnya memakai
+           tabel input&ndash;output resmi BPS dan guncangan yang disusun dari data satelit serta
+           statistik resmi. Keterbatasannya: model bersifat statis, sehingga menganggap harga,
+           teknologi produksi, dan pola belanja tidak berubah selama guncangan.</p>
+      </details>
+      <details>
+        <summary>Bisakah metode ini dipakai untuk daerah atau kejadian lain?</summary>
+        <p>Bisa. Yang perlu diganti adalah wilayah asal guncangan dan cara menyusun besarnya
+           guncangan. Kerangka tabel input&ndash;output antarprovinsi dan analisis spasialnya tetap
+           sama, misalnya untuk bencana alam atau gangguan di sektor selain pariwisata.</p>
+      </details>
+    </div>
+      </article>
+
+      <!-- ===================== TENTANG ===================== -->
+      <article class="halaman" id="h-tentang" hidden>
+        <header class="kepala-halaman">
+          <p class="jejak">Tentang</p>
+          <h1>Tentang penelitian ini</h1>
+        </header>
+    <div class="kredit-grid">
+      <div>
+        <!-- ISI SENDIRI: ganti teks di dalam <span class="isian">...</span> dengan data Anda,
+             lalu hapus pembungkus <span class="isian"> supaya tampil sebagai teks biasa. -->
+        <div class="profil">
+          <img class="foto-profil" src="foto.jpg" alt="Foto Atikah Nurfadia">
+          <div>
+            <p class="profil-nama">Atikah Nurfadia</p>
+            <p class="profil-peran">Penulis skripsi</p>
+          </div>
+        </div>
+        <dl class="daftar-kredit">
+          <dt>NIM</dt>
+          <dd>222212522</dd>
+          <dt>Tahun Lulus</dt>
+          <dd>2026</dd>
+          <dt>Pembimbing</dt>
+          <dd>Dr. Eng. Arie Wahyu Wijayanto, SST., M.T.</dd>
+          <dt>Judul Skripsi</dt>
+          <dd>Penyusunan Model Simulasi Spatial Spillover Effects Sektor Pariwisata 
+            Menggunakan Interregional Input-Output Network dan Geospatial Big Data (Studi Kasus Provinsi Bali Tahun 2025)</dd>
+        </dl>
+
+        <h3 style="margin-top: 1.75rem">Unduh data</h3>
+        <p>Seluruh angka pada halaman ini berasal dari dua berkas berikut, yang dapat dibuka
+           dengan teks editor mana pun.</p>
+        <ul class="daftar-unduh">
+          <li><a href="data/data.js" download>data.js</a>
+              <span class="kecil">dampak per provinsi, dekomposisi, spillover per sektor, dan batas wilayah</span></li>
+          <li><a href="data/data_tambahan.js" download>data_tambahan.js</a>
+              <span class="kecil">85 indikator proksi, koefisien per kategori KBLI, dan guncangan per sektor</span></li>
+        </ul>
+
+        <h3 style="margin-top: 1.75rem">Pertanyaan atau diskusi</h3>
+        <!-- ISI SENDIRI: ganti alamat email di dua tempat pada baris di bawah. -->
+        <p><a href="mailto:email@stis.ac.id?subject=Pertanyaan%20tentang%20Ketika%20Bali%20Terhenti">222212522@stis.ac.id</a></p>
+      </div>
+
+      <div>
+        <h3>Sumber data</h3>
+        <ul>
+          <li>Tabel Interregional Input&ndash;Output Indonesia 2016 (BPS), dimutakhirkan ke 2025 dengan metode RAS</li>
+          <li>Landsat 8, MODIS MOD11A2, VIIRS VNP46A2 Black Marble, dan Sentinel-5P melalui Google Earth Engine</li>
+          <li>Google Community Mobility Reports</li>
+          <li>Statistik resmi transportasi udara, transportasi laut, dan akomodasi Provinsi Bali</li>
+          <li>Konektivitas penerbangan antarprovinsi (waktu tempuh dan jumlah transit), diolah</li>
+          <li>Batas provinsi: GeoJSON 34 provinsi dari repositori ans-4175/peta-indonesia-geojson</li>
+        </ul>
+        <h3>Perangkat</h3>
+        <ul>
+          <li>Chart.js 4.4.1 untuk grafik dan Leaflet 1.9.4 untuk peta</li>
+          <li>Huruf Fraunces dan Plus Jakarta Sans (SIL Open Font License)</li>
+        </ul>
+      </div>
+    </div>
+      </article>
+    </main>
+
+    <footer class="kaki">
+      <p>Ketika Bali Terhenti &middot; Atikah Nurfadia &middot; Politeknik Statistika STIS</p>
+    </footer>
+  </div>
+
+  <div class="tirai" id="tirai" hidden></div>
+
+  <script src="lib/chart.umd.min.js"></script>
+  <script src="lib/leaflet.js"></script>
+  <script src="data/data.js"></script>
+  <script src="data/data_tambahan.js"></script>
+  <script src="js/bantu.js"></script>
+  <script src="js/beranda.js"></script>
+  <script src="js/ringkasan.js"></script>
+  <script src="js/remote-sensing.js"></script>
+  <script src="js/shock.js"></script>
+  <script src="js/irio.js"></script>
+  <script src="js/peta.js"></script>
+  <script src="js/klaster.js"></script>
+  <script src="js/tabel.js"></script>
+  <script src="js/simulator.js"></script>
+  <script src="js/tema.js"></script>
+  <script src="js/navigasi.js"></script>
+</body>
+</html>

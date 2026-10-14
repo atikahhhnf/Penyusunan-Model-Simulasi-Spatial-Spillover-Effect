@@ -1,0 +1,35 @@
+﻿Id,Label,Dx_juta,Dx_triliun,Intensitas_pct,Is_Shock_Origin,Koef_Struktural,Lat,Lon,Group,Size
+0,Aceh,-78520.62,-0.07852,0.018033,0,0.022518,4.69,95.32,Spillover_di_bawah_median,19.7
+1,Sumatera Utara,-644241.1,-0.64424,0.027124,0,0.101384,3.59,98.66,Spillover_di_atas_median,37.6
+2,Sumatera Barat,-97885.53,-0.09789,0.016427,0,0.022476,-0.94,100.35,Spillover_di_bawah_median,20.8
+3,Riau,-1082713.13,-1.08271,0.055453,0,0.171228,0.51,101.45,Spillover_di_atas_median,45.8
+4,Jambi,-293321.63,-0.29332,0.051054,0,0.105703,-1.61,103.61,Spillover_di_atas_median,28.7
+5,Sumatera Selatan,-3747652.62,-3.74765,0.278138,0,0.76804,-2.99,104.76,Spillover_di_atas_median,76.7
+6,Bengkulu,-36042.33,-0.03604,0.01951,0,0.008658,-3.8,102.34,Spillover_di_bawah_median,16.5
+7,Lampung,-253008.42,-0.25301,0.026764,0,0.049222,-5.35,105.27,Spillover_di_atas_median,27.3
+8,Kep. Bangka Belitung,-21476.07,-0.02148,0.011943,0,0.003857,-2.11,106.11,Spillover_di_bawah_median,15.0
+9,Kep. Riau,-108310.04,-0.10831,0.014625,0,0.063256,1.07,104.03,Spillover_di_bawah_median,21.3
+10,DKI Jakarta,-4534882.31,-4.53488,0.062304,0,0.971083,-6.21,106.84,Spillover_di_atas_median,83.4
+11,Jawa Barat,-1514969.6,-1.51497,0.026783,0,0.385088,-6.9,107.61,Spillover_di_atas_median,52.4
+12,Jawa Tengah,-3724400.0,-3.7244,0.09574,0,0.861556,-7.0,110.4,Spillover_di_atas_median,76.5
+13,DI Yogyakarta,-207941.11,-0.20794,0.054679,0,0.053038,-7.8,110.37,Spillover_di_atas_median,25.7
+14,Jawa Timur,-6825901.24,-6.8259,0.112947,0,0.982028,-7.25,112.75,Spillover_di_atas_median,100.0
+15,Banten,-1652403.3,-1.6524,0.093736,0,0.518298,-6.1,106.1,Spillover_di_atas_median,54.3
+16,Bali,-112425591.81,-112.42559,19.480199,1,0.0,-8.67,115.21,Shock_Origin,100.0
+17,Nusa Tenggara Barat,-771124.78,-0.77112,0.240183,0,0.095799,-8.58,116.12,Spillover_di_atas_median,40.2
+18,Nusa Tenggara Timur,-441428.07,-0.44143,0.189525,0,0.060769,-8.59,121.07,Spillover_di_atas_median,32.9
+19,Kalimantan Barat,-113996.93,-0.114,0.019423,0,0.032019,-0.02,109.34,Spillover_di_bawah_median,21.6
+20,Kalimantan Tengah,-149997.7,-0.15,0.032952,0,0.030999,1.87,113.89,Spillover_di_bawah_median,23.3
+21,Kalimantan Selatan,-58783.44,-0.05878,0.010814,0,0.014251,-3.32,114.59,Spillover_di_bawah_median,18.4
+22,Kalimantan Timur,-1375355.85,-1.37536,0.08013,0,0.62382,-0.5,117.15,Spillover_di_atas_median,50.4
+23,Kalimantan Utara,-78297.91,-0.0783,0.031643,0,0.023113,2.72,117.57,Spillover_di_bawah_median,19.6
+24,Sulawesi Utara,-70090.19,-0.07009,0.020421,0,0.019084,1.48,124.84,Spillover_di_bawah_median,19.1
+25,Sulawesi Tengah,-416632.88,-0.41663,0.049128,0,0.32237,-1.43,121.83,Spillover_di_atas_median,32.2
+26,Sulawesi Selatan,-1543596.81,-1.5436,0.123747,0,0.224014,-5.14,119.41,Spillover_di_atas_median,52.8
+27,Sulawesi Tenggara,-91861.71,-0.09186,0.028901,0,0.044953,-4.14,122.52,Spillover_di_bawah_median,20.4
+28,Gorontalo,-15827.81,-0.01583,0.017097,0,0.005147,0.54,122.07,Spillover_di_bawah_median,14.3
+29,Sulawesi Barat,-15530.8,-0.01553,0.01293,0,0.004571,-2.53,119.4,Spillover_di_bawah_median,14.3
+30,Maluku,-37795.31,-0.0378,0.033616,0,0.011923,-3.65,128.18,Spillover_di_bawah_median,16.7
+31,Maluku Utara,-35343.2,-0.03534,0.016637,0,0.015676,1.57,127.38,Spillover_di_bawah_median,16.5
+32,Papua Barat,-21547.22,-0.02155,0.008499,0,0.005513,-1.33,132.27,Spillover_di_bawah_median,15.1
+33,Papua,-162821.08,-0.16282,0.030108,0,0.033228,-4.27,138.09,Spillover_di_atas_median,23.9
